@@ -136,26 +136,20 @@ def plot_hdi(
         >>> az.plot_hdi(x_data, y_data)
 
     """
-    # PSEUDOCODE CONTRACT [HDI-001, HDI-002, HDI-003, HDI-006]
-    # INPUT: x in its supplied pandas-categorical or equivalent array representation; smooth.
-    # TRANSITION: enter the API-boundary validation state before HDI calculation, smoothing,
-    # plotting-data preparation, backend selection, or backend invocation.
-    # NORMALIZE: obtain an array view of x that preserves enough dtype/value information to
-    # recognize categorical labels without otherwise changing numeric-input behavior.
-    # DECIDE: if x has categorical metadata, a string dtype, or categorical/string label values,
-    # then construct an intentional TypeError identifying x as unsupported and stating that
-    # plot_hdi() requires numeric axis values.
-    # FAIL: raise that TypeError immediately; do not branch on smooth and do not hand off to any
-    # smoothing, sorting, HDI, or plotting operation, so smooth=True and smooth=False fail alike.
-    # CONTINUE: otherwise hand the validated numeric x to the existing normalization and plotting
-    # flow unchanged.
     if hdi_kwargs is None:
         hdi_kwargs = {}
 
-    # VALIDATION SEAM [HDI-001, HDI-003]: categorical-x validation is owned here, at the public
-    # API boundary immediately before normalization. Only validated numeric x may flow to HDI,
-    # smoothing/sorting, backend selection, and backend invocation below.
+    # Validate before conversion because pandas categorical metadata is lost in np.asarray.
+    x_dtype = getattr(x, "dtype", None)
+    is_categorical = hasattr(x_dtype, "categories")
     x = np.asarray(x)
+    is_string = x.dtype.kind in {"S", "U"} or (
+        x.dtype.kind == "O"
+        and any(isinstance(value, (str, bytes, np.str_, np.bytes_)) for value in x.flat)
+    )
+    if is_categorical or is_string:
+        raise TypeError(_UNSUPPORTED_X_TYPE_ERROR)
+
     x_shape = x.shape
 
     if y is None and hdi_data is None:

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib import animation
-from pandas import DataFrame
+from pandas import Categorical, DataFrame
 from scipy.stats import gaussian_kde, norm
 import xarray as xr
 
@@ -1246,7 +1246,7 @@ def test_plot_hdi_datetime_error():
 
 
 @pytest.mark.parametrize(
-    "_categorical_representation,_smooth",
+    "categorical_representation,smooth",
     [
         ("pandas-categorical", True),
         ("pandas-categorical", False),
@@ -1264,17 +1264,21 @@ def test_plot_hdi_datetime_error():
         "rejects-unsupported-x-with-numeric-axis-TypeError-before-plotting",
     ],
 )
-def test_plot_hdi_categorical_x_contract(_categorical_representation, _smooth):
-    """Preserve categorical-x rejection contracts until behavioral tests are implemented."""
-    # VERIFICATION PSEUDOCODE [HDI-001, HDI-002, HDI-003, HDI-006]
-    # ARRANGE: translate _categorical_representation into either a pandas categorical object or
-    # an equivalent string-label array, and pair it with otherwise valid plot_hdi() inputs.
-    # OBSERVE: invoke plot_hdi() with smooth=_smooth inside an intentional-TypeError capture.
-    # VERIFY: require the captured diagnostic to identify x as unsupported and state that
-    # plot_hdi() requires numeric axis values.
-    # VERIFY: require the same ArviZ-level failure for each representation and both smooth states;
-    # fail the case if smoothing or a plotting backend runs or supplies the exception instead.
-    assert True
+def test_plot_hdi_categorical_x_contract(categorical_representation, smooth):
+    """Reject categorical x at the ArviZ API boundary [HDI-001/002/003/006]."""
+    labels = ["first", "second", "third"]
+    x_data = (
+        Categorical(labels)
+        if categorical_representation == "pandas-categorical"
+        else np.asarray(labels)
+    )
+    hdi_data = np.array([[0, 1], [1, 2], [2, 3]])
+
+    message = "Unsupported x values: plot_hdi() requires numeric axis values."
+    with pytest.raises(TypeError) as err:
+        plot_hdi(x_data, hdi_data=hdi_data, smooth=smooth)
+
+    assert str(err.value) == message
 
 
 @pytest.mark.parametrize("limits", [(-10.0, 10.0), (-5, 5), (None, None)])
