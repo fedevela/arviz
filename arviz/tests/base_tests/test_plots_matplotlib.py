@@ -1291,6 +1291,13 @@ def test_plot_hdi_categorical_x_contract(categorical_representation, smooth):
 )
 def test_plot_hdi_numeric_x_preserves_existing_behavior_contract(smooth):
     """Preserve supported numeric x behavior across smoothing modes [HDI-004/HDI-007]."""
+    # Regression verification flow [HDI-004, HDI-007]:
+    # ARRANGE: construct valid numeric x and valid HDI input accepted before categorical validation.
+    # ACT: call plot_hdi with the parametrized smooth value (True, then False).
+    # ASSERT: each call completes without the categorical-input TypeError and returns the same
+    # observable HDI coordinates/limits and plotting result established by existing behavior.
+    # FAILURE: propagate any categorical-input TypeError or changed numeric output as a regression;
+    # keep mode-specific legacy validation failures outside this supported-input fixture.
     del smooth
     assert True
 

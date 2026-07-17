@@ -139,6 +139,17 @@ def plot_hdi(
     if hdi_kwargs is None:
         hdi_kwargs = {}
 
+    # Numeric-x preservation flow [HDI-004]:
+    # INPUT: x is a supported numeric sequence and y or hdi_data is otherwise valid.
+    # DECISION: categorical validation classifies only categorical/string x as unsupported.
+    # TRANSITION: numeric x continues through the existing array conversion, HDI selection or
+    # computation, shape validation, and the requested smoothing branch without a categorical-x
+    # TypeError.
+    # OUTPUT: preserve the existing backend handoff and returned axes for numeric x.
+    # FAILURE: retain the pre-existing validation failures for missing data, incompatible shapes,
+    # invalid HDI probability, datetime smoothing, and backend processing; do not remap them to the
+    # categorical-x TypeError.
+
     # Validate before conversion because pandas categorical metadata is lost in np.asarray.
     x_dtype = getattr(x, "dtype", None)
     is_categorical = hasattr(x_dtype, "categories")
@@ -185,6 +196,8 @@ def plot_hdi(
         raise TypeError(msg.format(x_shape, hdi_shape))
 
     if smooth:
+        # HDI-004 TRUE BRANCH: interpolate numeric x, apply the configured Savitzky-Golay filter,
+        # and hand the resulting x_data/y_data to the unchanged plotting path.
         if isinstance(x[0], np.datetime64):
             raise TypeError("Cannot deal with x as type datetime. Recommend setting smooth=False.")
 
@@ -197,6 +210,8 @@ def plot_hdi(
         hdi_interp = griddata(x, hdi_data, x_data)
         y_data = savgol_filter(hdi_interp, axis=0, **smooth_kwargs)
     else:
+        # HDI-004 FALSE BRANCH: sort numeric x, align hdi_data by the same indices, and hand the
+        # resulting x_data/y_data to the unchanged plotting path without interpolation or filtering.
         idx = np.argsort(x)
         x_data = x[idx]
         y_data = hdi_data[idx]
