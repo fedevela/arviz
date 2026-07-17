@@ -44,7 +44,8 @@ def plot_hdi(
     Parameters
     ----------
     x : array-like
-        Values to plot.
+        Numeric axis values to plot. Categorical ``x`` inputs are unsupported. String-valued
+        ``x`` inputs are also unsupported.
     y : array-like, optional
         Values from which to compute the HDI. Assumed shape ``(chain, draw, \*shape)``.
         Only optional if ``hdi_data`` is present.
