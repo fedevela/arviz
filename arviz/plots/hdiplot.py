@@ -12,6 +12,12 @@ from ..stats import hdi
 from .plot_utils import get_plotting_function
 
 
+# API-boundary diagnostic contract [HDI-001, HDI-002, HDI-003, HDI-006].
+# This private value belongs to the frontend plot module so categorical-x rejection does not
+# depend on smoothing code or a plotting backend and does not enlarge the public plotting API.
+_UNSUPPORTED_X_TYPE_ERROR = "Unsupported x values: plot_hdi() requires numeric axis values."
+
+
 def plot_hdi(
     x,
     y=None,
@@ -146,6 +152,9 @@ def plot_hdi(
     if hdi_kwargs is None:
         hdi_kwargs = {}
 
+    # VALIDATION SEAM [HDI-001, HDI-003]: categorical-x validation is owned here, at the public
+    # API boundary immediately before normalization. Only validated numeric x may flow to HDI,
+    # smoothing/sorting, backend selection, and backend invocation below.
     x = np.asarray(x)
     x_shape = x.shape
 
