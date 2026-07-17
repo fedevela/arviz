@@ -136,6 +136,17 @@ def plot_hdi(
         >>> az.plot_hdi(x_data, y_data)
 
     """
+    # User-facing x documentation flow [HDI-005]:
+    # INPUT: a user consults the plot_hdi API documentation for accepted x values.
+    # DECISION: describe the accepted contract as numeric axis values only.
+    # UNSUPPORTED BRANCH: explicitly identify categorical x values as unsupported.
+    # UNSUPPORTED BRANCH: explicitly identify string-valued x values as unsupported.
+    # CONSTRAINT: do not claim or imply that plot_hdi supports categorical-axis plotting.
+    # OUTPUT: hand the numeric-only restriction and both explicit exclusions to the rendered
+    # plot_hdi documentation at the x-parameter locus.
+    # FAILURE: if either exclusion is absent or categorical-axis support is implied, the
+    # user-facing documentation contract is unsatisfied and must not be published as compliant.
+
     if hdi_kwargs is None:
         hdi_kwargs = {}
 
