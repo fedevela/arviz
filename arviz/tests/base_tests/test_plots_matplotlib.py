@@ -1266,6 +1266,14 @@ def test_plot_hdi_datetime_error():
 )
 def test_plot_hdi_categorical_x_contract(_categorical_representation, _smooth):
     """Preserve categorical-x rejection contracts until behavioral tests are implemented."""
+    # VERIFICATION PSEUDOCODE [HDI-001, HDI-002, HDI-003, HDI-006]
+    # ARRANGE: translate _categorical_representation into either a pandas categorical object or
+    # an equivalent string-label array, and pair it with otherwise valid plot_hdi() inputs.
+    # OBSERVE: invoke plot_hdi() with smooth=_smooth inside an intentional-TypeError capture.
+    # VERIFY: require the captured diagnostic to identify x as unsupported and state that
+    # plot_hdi() requires numeric axis values.
+    # VERIFY: require the same ArviZ-level failure for each representation and both smooth states;
+    # fail the case if smoothing or a plotting backend runs or supplies the exception instead.
     assert True
 
 
