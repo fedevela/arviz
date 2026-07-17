@@ -1281,8 +1281,8 @@ def test_plot_hdi_categorical_x_contract(categorical_representation, smooth):
     assert str(err.value) == message
 
 
-# NUMERIC-X REGRESSION SEAM [HDI-004, HDI-007]: this existing backend-observable test locus owns
-# both smoothing modes; implementation replaces the no-op body without adding another test API.
+# NUMERIC-X REGRESSION SEAM [HDI-004, HDI-007]: this backend-observable test locus owns both
+# smoothing modes without adding another test API.
 @pytest.mark.parametrize(
     "smooth",
     [True, False],
@@ -1300,8 +1300,37 @@ def test_plot_hdi_numeric_x_preserves_existing_behavior_contract(smooth):
     # observable HDI coordinates/limits and plotting result established by existing behavior.
     # FAILURE: propagate any categorical-input TypeError or changed numeric output as a regression;
     # keep mode-specific legacy validation failures outside this supported-input fixture.
-    del smooth
-    assert True
+    x_data = np.array([3.0, 0.0, 2.0, 1.0])
+    y_data = np.stack((x_data - 0.5, x_data, x_data + 0.5, x_data + 1.0))[None, ...]
+    _, ax = plt.subplots()
+
+    result = plot_hdi(
+        x_data,
+        y=y_data,
+        hdi_prob=0.75,
+        smooth=smooth,
+        smooth_kwargs={"window_length": 3, "polyorder": 2},
+        ax=ax,
+    )
+
+    if smooth:
+        expected_x = np.linspace(x_data.min(), x_data.max(), 200)
+        expected_x[0] = (expected_x[0] + expected_x[1]) / 2
+    else:
+        expected_x = np.sort(x_data)
+    expected_y = np.column_stack((expected_x - 0.5, expected_x + 1.0))
+
+    assert result is ax
+    assert len(ax.lines) == 2
+    assert len(ax.collections) == 1
+    np.testing.assert_allclose(ax.lines[0].get_xdata(), expected_x)
+    np.testing.assert_allclose(ax.lines[1].get_xdata(), expected_x)
+    np.testing.assert_allclose(ax.lines[0].get_ydata(), expected_y[:, 0])
+    np.testing.assert_allclose(ax.lines[1].get_ydata(), expected_y[:, 1])
+    np.testing.assert_allclose(
+        ax.collections[0].get_datalim(ax.transData).get_points(),
+        [[expected_x.min(), expected_y[:, 0].min()], [expected_x.max(), expected_y[:, 1].max()]],
+    )
 
 
 @pytest.mark.parametrize("limits", [(-10.0, 10.0), (-5, 5), (None, None)])
