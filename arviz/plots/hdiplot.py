@@ -139,6 +139,10 @@ def plot_hdi(
     if hdi_kwargs is None:
         hdi_kwargs = {}
 
+    # NUMERIC-X PRESERVATION BOUNDARY [HDI-004]: this frontend module owns x classification and
+    # normalization. Accepted numeric x continues to the existing HDI/smoothing pipeline, which
+    # alone supplies processed arrays to the backend adapter; plotting backends must not depend on
+    # or duplicate input-type validation.
     # Numeric-x preservation flow [HDI-004]:
     # INPUT: x is a supported numeric sequence and y or hdi_data is otherwise valid.
     # DECISION: categorical validation classifies only categorical/string x as unsupported.

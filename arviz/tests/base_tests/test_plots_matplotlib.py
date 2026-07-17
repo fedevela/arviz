@@ -1281,6 +1281,8 @@ def test_plot_hdi_categorical_x_contract(categorical_representation, smooth):
     assert str(err.value) == message
 
 
+# NUMERIC-X REGRESSION SEAM [HDI-004, HDI-007]: this existing backend-observable test locus owns
+# both smoothing modes; implementation replaces the no-op body without adding another test API.
 @pytest.mark.parametrize(
     "smooth",
     [True, False],
