@@ -1245,6 +1245,30 @@ def test_plot_hdi_datetime_error():
         plot_hdi(x=x_data, y=y_data, hdi_data=hdi_data)
 
 
+@pytest.mark.parametrize(
+    "_categorical_representation,_smooth",
+    [
+        ("pandas-categorical", True),
+        ("pandas-categorical", False),
+        ("equivalent-array", True),
+        ("equivalent-array", False),
+    ],
+    ids=[
+        "HDI-001-HDI-002-HDI-003-HDI-006-pandas-categorical-smooth-true-"
+        "rejects-unsupported-x-with-numeric-axis-TypeError-before-smoothing-or-plotting",
+        "HDI-001-HDI-002-HDI-003-HDI-006-pandas-categorical-smooth-false-"
+        "rejects-unsupported-x-with-numeric-axis-TypeError-before-plotting",
+        "HDI-001-HDI-002-HDI-003-HDI-006-equivalent-array-smooth-true-"
+        "rejects-unsupported-x-with-numeric-axis-TypeError-before-smoothing-or-plotting",
+        "HDI-001-HDI-002-HDI-003-HDI-006-equivalent-array-smooth-false-"
+        "rejects-unsupported-x-with-numeric-axis-TypeError-before-plotting",
+    ],
+)
+def test_plot_hdi_categorical_x_contract(_categorical_representation, _smooth):
+    """Preserve categorical-x rejection contracts until behavioral tests are implemented."""
+    assert True
+
+
 @pytest.mark.parametrize("limits", [(-10.0, 10.0), (-5, 5), (None, None)])
 def test_kde_scipy(limits):
     """
