@@ -18,6 +18,9 @@ from .plot_utils import get_plotting_function
 _UNSUPPORTED_X_TYPE_ERROR = "Unsupported x values: plot_hdi() requires numeric axis values."
 
 
+# DOCUMENTATION OWNERSHIP BOUNDARY [HDI-005]: the ``x`` parameter entry in the public
+# ``plot_hdi`` docstring owns the numeric-axis contract and both categorical and string-valued
+# exclusions. Documentation renderers consume this contract; plotting backends must not redefine it.
 def plot_hdi(
     x,
     y=None,
