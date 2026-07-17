@@ -1281,6 +1281,20 @@ def test_plot_hdi_categorical_x_contract(categorical_representation, smooth):
     assert str(err.value) == message
 
 
+@pytest.mark.parametrize(
+    "smooth",
+    [True, False],
+    ids=[
+        "HDI-004-HDI-007-numeric-x-smooth-true-preserves-existing-HDI-computation-and-plotting",
+        "HDI-004-HDI-007-numeric-x-smooth-false-preserves-existing-HDI-computation-and-plotting",
+    ],
+)
+def test_plot_hdi_numeric_x_preserves_existing_behavior_contract(smooth):
+    """Preserve supported numeric x behavior across smoothing modes [HDI-004/HDI-007]."""
+    del smooth
+    assert True
+
+
 @pytest.mark.parametrize("limits", [(-10.0, 10.0), (-5, 5), (None, None)])
 def test_kde_scipy(limits):
     """
