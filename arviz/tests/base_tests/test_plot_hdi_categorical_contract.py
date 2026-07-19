@@ -1,5 +1,7 @@
 """Verification contract for rejecting categorical strings before HDI rendering."""
 
+from importlib import import_module
+
 import numpy as np
 import pytest
 from pandas import Categorical
@@ -12,6 +14,10 @@ HDICAT_ERROR = "Categorical or string x values are unsupported."
 X_REPRESENTATIONS = ("numpy-string", "pandas-categorical-object")
 INTERVAL_SOURCES = ("computed-from-y", "supplied-hdi-data")
 SMOOTH_MODES = (True, False)
+PLOT_LM_BACKENDS = ("matplotlib", "bokeh")
+PLOT_LM_PLACEHOLDER = pytest.mark.skip(
+    reason="HDICAT-006/007 plot_lm propagation placeholder: activate during implementation"
+)
 
 
 def _categorical_x(representation):
@@ -174,3 +180,93 @@ def test_hdicat_005_caller_surface_state_is_unchanged_when_categorical_string_x_
         import matplotlib.pyplot as plt
 
         plt.close(ax.figure)
+
+
+def _plot_lm_data():
+    """Return compatible observed, posterior-predictive, and model samples."""
+    observed = np.arange(8, dtype=float)
+    samples = np.arange(64, dtype=float).reshape(2, 4, 8)
+    idata = az.from_dict(
+        posterior={"mean": samples},
+        posterior_predictive={"y": samples},
+        observed_data={"y": observed},
+        dims={"mean": ["observation"], "y": ["observation"]},
+    )
+    return observed, samples, idata
+
+
+def _record_delegated_hdi_error(monkeypatch, backend):
+    """Record the actual error object raised by a backend's delegated plot_hdi call."""
+    delegated_errors = []
+
+    def record_plot_hdi_error(*args, **kwargs):
+        try:
+            return az.plot_hdi(*args, **kwargs)
+        except TypeError as err:
+            delegated_errors.append(err)
+            raise
+
+    backend_lmplot = import_module(f"arviz.plots.backends.{backend}.lmplot")
+    monkeypatch.setattr(backend_lmplot, "plot_hdi", record_plot_hdi_error)
+    return delegated_errors
+
+
+@PLOT_LM_PLACEHOLDER
+@pytest.mark.parametrize("representation", X_REPRESENTATIONS, ids=X_REPRESENTATIONS)
+@pytest.mark.parametrize("backend", PLOT_LM_BACKENDS, ids=PLOT_LM_BACKENDS)
+def test_hdicat_006_plot_lm_kind_pp_hdi_propagates_delegated_categorical_type_error_unchanged(
+    monkeypatch, representation, backend
+):
+    """GUID: HDICAT-006; plot_lm propagates the delegated kind_pp=hdi error unchanged."""
+    _, samples, idata = _plot_lm_data()
+    x = _categorical_x(representation)
+
+    with pytest.raises(TypeError) as direct_error:
+        az.plot_hdi(x, y=samples, backend=backend, show=False)
+
+    delegated_errors = _record_delegated_hdi_error(monkeypatch, backend)
+    with pytest.raises(TypeError) as plot_lm_error:
+        az.plot_lm(
+            idata=idata,
+            y="y",
+            x=x,
+            kind_pp="hdi",
+            backend=backend,
+            show=False,
+        )
+
+    assert delegated_errors == [plot_lm_error.value]
+    assert plot_lm_error.value is delegated_errors[0]
+    assert type(plot_lm_error.value) is type(direct_error.value)
+    assert plot_lm_error.value.args == direct_error.value.args == (HDICAT_ERROR,)
+
+
+@PLOT_LM_PLACEHOLDER
+@pytest.mark.parametrize("representation", X_REPRESENTATIONS, ids=X_REPRESENTATIONS)
+@pytest.mark.parametrize("backend", PLOT_LM_BACKENDS, ids=PLOT_LM_BACKENDS)
+def test_hdicat_007_plot_lm_kind_model_hdi_propagates_delegated_categorical_type_error_unchanged(
+    monkeypatch, representation, backend
+):
+    """GUID: HDICAT-007; plot_lm propagates the delegated kind_model=hdi error unchanged."""
+    observed, samples, idata = _plot_lm_data()
+    x = _categorical_x(representation)
+
+    with pytest.raises(TypeError) as direct_error:
+        az.plot_hdi(x, y=samples, backend=backend, show=False)
+
+    delegated_errors = _record_delegated_hdi_error(monkeypatch, backend)
+    with pytest.raises(TypeError) as plot_lm_error:
+        az.plot_lm(
+            idata=idata,
+            y=observed,
+            x=x,
+            y_model="mean",
+            kind_model="hdi",
+            backend=backend,
+            show=False,
+        )
+
+    assert delegated_errors == [plot_lm_error.value]
+    assert plot_lm_error.value is delegated_errors[0]
+    assert type(plot_lm_error.value) is type(direct_error.value)
+    assert plot_lm_error.value.args == direct_error.value.args == (HDICAT_ERROR,)
