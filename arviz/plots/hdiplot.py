@@ -12,6 +12,15 @@ from ..stats import hdi
 from .plot_utils import get_plotting_function
 
 
+def _is_categorical_string_x(x):
+    """Return whether x uses a categorical-string representation unsupported by plot_hdi."""
+    if x.dtype.kind in {"U", "S"}:
+        return True
+    if x.dtype.kind != "O" or x.size == 0:
+        return False
+    return all(isinstance(value, str) for value in x.flat)
+
+
 def plot_hdi(
     x,
     y=None,
@@ -135,6 +144,8 @@ def plot_hdi(
 
     x = np.asarray(x)
     x_shape = x.shape
+    if _is_categorical_string_x(x):
+        raise TypeError("Categorical or string x values are unsupported.")
 
     if y is None and hdi_data is None:
         raise ValueError("One of {y, hdi_data} is required")

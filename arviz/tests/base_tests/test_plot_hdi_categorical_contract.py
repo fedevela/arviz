@@ -8,10 +8,6 @@ import arviz as az
 from arviz.plots import hdiplot as hdiplot_module
 
 
-pytestmark = pytest.mark.skip(
-    reason="HDICAT contract placeholder: activate during implementation validation"
-)
-
 HDICAT_ERROR = "Categorical or string x values are unsupported."
 X_REPRESENTATIONS = ("numpy-string", "pandas-categorical-object")
 INTERVAL_SOURCES = ("computed-from-y", "supplied-hdi-data")
