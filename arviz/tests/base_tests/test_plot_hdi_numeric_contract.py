@@ -9,9 +9,6 @@ from arviz.plots import hdiplot as hdiplot_module
 
 BACKENDS = ("matplotlib", "bokeh")
 CUSTOM_SMOOTH_KWARGS = {"window_length": 21, "polyorder": 3, "mode": "mirror"}
-PRECOMPUTED_PLACEHOLDER = pytest.mark.skip(
-    reason="HDICAT-009/010/011 precomputed HDI placeholder: activate in Malkhut"
-)
 
 
 def _numeric_samples(coordinate_count=8):
@@ -45,7 +42,6 @@ def _renderer_count(surface, backend):
     return len(surface.renderers)
 
 
-@PRECOMPUTED_PLACEHOLDER
 @pytest.mark.parametrize("backend", BACKENDS, ids=BACKENDS)
 @pytest.mark.parametrize(
     "configured_backend", (False, True), ids=("explicit-backend", "configured-backend")
@@ -100,7 +96,6 @@ def test_hdicat_009_compatible_precomputed_bounds_bypass_hdi_computation_and_ret
         plt.close(surface.figure)
 
 
-@PRECOMPUTED_PLACEHOLDER
 def test_hdicat_010_default_smoothing_interpolates_precomputed_bounds_on_regular_grid_then_applies_default_savgol_filter(
     monkeypatch,
 ):
@@ -159,7 +154,6 @@ def test_hdicat_010_default_smoothing_interpolates_precomputed_bounds_on_regular
     assert result is surface
 
 
-@PRECOMPUTED_PLACEHOLDER
 @pytest.mark.parametrize("backend", BACKENDS, ids=BACKENDS)
 def test_hdicat_010_caller_smooth_kwargs_filter_precomputed_bounds_without_hdi_recomputation_and_render_selected_backend(
     monkeypatch, backend
@@ -220,7 +214,6 @@ def test_hdicat_010_caller_smooth_kwargs_filter_precomputed_bounds_without_hdi_r
         plt.close(surface.figure)
 
 
-@PRECOMPUTED_PLACEHOLDER
 @pytest.mark.parametrize("backend", BACKENDS, ids=BACKENDS)
 def test_hdicat_011_unsmoothed_unsorted_coordinates_and_precomputed_bounds_are_sorted_together_before_rendering(
     monkeypatch, backend
