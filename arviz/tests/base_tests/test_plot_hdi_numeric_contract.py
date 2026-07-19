@@ -7,10 +7,6 @@ import arviz as az
 from arviz.plots import hdiplot as hdiplot_module
 
 
-pytestmark = pytest.mark.skip(
-    reason="HDICAT-008/010/011 numeric HDI placeholders: activate during implementation validation"
-)
-
 BACKENDS = ("matplotlib", "bokeh")
 CUSTOM_SMOOTH_KWARGS = {"window_length": 21, "polyorder": 3, "mode": "mirror"}
 
