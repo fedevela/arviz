@@ -20,9 +20,6 @@ MULTIVARIABLE_DATASET_ERROR = (
 )
 PROBABILITY_ERROR = "The value of hdi_prob should be in the interval (0, 1]"
 SIMULTANEOUS_SOURCE_WARNING = "Both y and hdi_data arguments present, ignoring y"
-VALIDATION_PLACEHOLDER = pytest.mark.skip(
-    reason="HDICAT-014/015/016/017/018 validation placeholders: activate in Malkhut"
-)
 
 
 def _numeric_samples(coordinate_count=3):
@@ -56,7 +53,6 @@ def _renderer_count(surface, backend):
     return len(surface.renderers)
 
 
-@VALIDATION_PLACEHOLDER
 def test_hdicat_014_supported_x_without_y_or_hdi_data_raises_established_missing_interval_source_value_error_before_dispatch(
     monkeypatch,
 ):
@@ -77,7 +73,6 @@ def test_hdicat_014_supported_x_without_y_or_hdi_data_raises_established_missing
     assert str(err.value) == MISSING_SOURCE_ERROR
 
 
-@VALIDATION_PLACEHOLDER
 @pytest.mark.parametrize("backend", BACKENDS, ids=BACKENDS)
 def test_hdicat_015_supported_x_with_y_and_hdi_data_warns_y_is_ignored_uses_supplied_intervals_and_returns_selected_backend_surface(
     monkeypatch, backend
@@ -130,7 +125,6 @@ def test_hdicat_015_supported_x_with_y_and_hdi_data_warns_y_is_ignored_uses_supp
         plt.close(surface.figure)
 
 
-@VALIDATION_PLACEHOLDER
 @pytest.mark.parametrize(
     "hdi_prob", (0, -0.1, 1.1), ids=("zero", "negative", "greater-than-one")
 )
@@ -160,7 +154,6 @@ def test_hdicat_016_supported_x_with_y_and_hdi_prob_outside_open_zero_closed_one
     assert str(err.value) == PROBABILITY_ERROR
 
 
-@VALIDATION_PLACEHOLDER
 def test_hdicat_017_supported_x_with_multivariable_hdi_dataset_raises_established_single_variable_value_error_before_dispatch(
     monkeypatch,
 ):
@@ -193,7 +186,6 @@ def test_hdicat_017_supported_x_with_multivariable_hdi_dataset_raises_establishe
     assert str(err.value) == MULTIVARIABLE_DATASET_ERROR
 
 
-@VALIDATION_PLACEHOLDER
 @pytest.mark.parametrize("interval_source", INTERVAL_SOURCES, ids=INTERVAL_SOURCES)
 def test_hdicat_018_supported_x_shape_mismatching_computed_or_supplied_hdi_non_bound_dimensions_raises_established_type_error_before_dispatch(
     monkeypatch, interval_source
