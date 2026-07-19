@@ -15,9 +15,6 @@ X_REPRESENTATIONS = ("numpy-string", "pandas-categorical-object")
 INTERVAL_SOURCES = ("computed-from-y", "supplied-hdi-data")
 SMOOTH_MODES = (True, False)
 PLOT_LM_BACKENDS = ("matplotlib", "bokeh")
-PLOT_LM_PLACEHOLDER = pytest.mark.skip(
-    reason="HDICAT-006/007 plot_lm propagation placeholder: activate during implementation"
-)
 
 
 def _categorical_x(representation):
@@ -211,7 +208,6 @@ def _record_delegated_hdi_error(monkeypatch, backend):
     return delegated_errors
 
 
-@PLOT_LM_PLACEHOLDER
 @pytest.mark.parametrize("representation", X_REPRESENTATIONS, ids=X_REPRESENTATIONS)
 @pytest.mark.parametrize("backend", PLOT_LM_BACKENDS, ids=PLOT_LM_BACKENDS)
 def test_hdicat_006_plot_lm_kind_pp_hdi_propagates_delegated_categorical_type_error_unchanged(
@@ -241,7 +237,6 @@ def test_hdicat_006_plot_lm_kind_pp_hdi_propagates_delegated_categorical_type_er
     assert plot_lm_error.value.args == direct_error.value.args == (HDICAT_ERROR,)
 
 
-@PLOT_LM_PLACEHOLDER
 @pytest.mark.parametrize("representation", X_REPRESENTATIONS, ids=X_REPRESENTATIONS)
 @pytest.mark.parametrize("backend", PLOT_LM_BACKENDS, ids=PLOT_LM_BACKENDS)
 def test_hdicat_007_plot_lm_kind_model_hdi_propagates_delegated_categorical_type_error_unchanged(
