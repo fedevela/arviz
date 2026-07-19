@@ -9,9 +9,6 @@ from arviz.plots import hdiplot as hdiplot_module
 
 BACKENDS = ("matplotlib", "bokeh")
 DATETIME_ERROR = "Cannot deal with x as type datetime. Recommend setting smooth=False."
-DATETIME_PLACEHOLDER = pytest.mark.skip(
-    reason="HDICAT-012/013 datetime HDI placeholders: activate in Malkhut"
-)
 INTERVAL_SOURCES = ("computed-from-y", "supplied-hdi-data")
 
 
@@ -47,7 +44,6 @@ def _renderer_count(surface, backend):
     return len(surface.renderers)
 
 
-@DATETIME_PLACEHOLDER
 @pytest.mark.parametrize("interval_source", INTERVAL_SOURCES, ids=INTERVAL_SOURCES)
 def test_hdicat_012_smoothed_numpy_datetime_x_with_computed_or_precomputed_intervals_raises_datetime_guidance_before_backend_dispatch(
     monkeypatch, interval_source
@@ -73,7 +69,6 @@ def test_hdicat_012_smoothed_numpy_datetime_x_with_computed_or_precomputed_inter
     assert "string" not in str(err.value).lower()
 
 
-@DATETIME_PLACEHOLDER
 @pytest.mark.parametrize("backend", BACKENDS, ids=BACKENDS)
 def test_hdicat_013_unsmoothed_unsorted_numpy_datetime_x_and_precomputed_intervals_sort_together_render_and_return_selected_backend_surface(
     monkeypatch, backend
